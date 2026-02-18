@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    container_name: learn_app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/app_db
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    # restart: unless-stopped
+
+  db:
+    image: postgres:16.10-alpine
+    container_name: learn_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"]
+    # restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: learn_redis
+    volumes:
+      - redis_data:/data
+    # restart: unless-stopped
+
+volumes:
+  db_data:
+  redis_data:

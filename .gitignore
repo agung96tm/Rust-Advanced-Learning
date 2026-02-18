@@ -1,0 +1,20 @@
+# Rust
+/target
+**/*.rs.bk
+Cargo.lock.bak
+
+# Env & secrets (jangan commit credentials)
+.env
+.env.*
+!.env.example
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

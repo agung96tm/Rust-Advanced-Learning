@@ -1,0 +1,5 @@
+[default]
+address = "0.0.0.0"
+port = 8000
+
+# Database URL configured via ROCKET_DATABASES env var (see docker-compose.yml)

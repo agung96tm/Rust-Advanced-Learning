@@ -1,0 +1,20 @@
+# Build output (build happens inside container)
+target/
+
+# Version control
+.git/
+.gitignore
+
+# Env & secrets (inject at runtime via compose)
+.env
+.env.*
+
+# Docs (not needed in image)
+*.md
+
+# Editors / IDEs (not needed in image)
+.vscode/
+.idea/
+
+# OS
+.DS_Store
