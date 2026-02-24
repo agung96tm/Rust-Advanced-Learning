@@ -1,3 +1,4 @@
+use diesel::result::Error as DieselError;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
@@ -21,18 +22,22 @@ pub async fn get_crates(mut db: Connection<Db>) -> Result<Json<Vec<Crate>>, (Sta
 
 #[rocket::get("/crates/<id>")]
 pub async fn get_crate(mut db: Connection<Db>, id: i32) -> Result<Json<Crate>, (Status, String)> {
-    let result = CrateRepository::find(&mut db, id)
-        .await
-        .map_err(|e| (Status::InternalServerError, e.to_string()))?;
+    let result = CrateRepository::find(&mut db, id).await.map_err(|e| {
+        if matches!(e, DieselError::NotFound) {
+            (Status::NotFound, "Crate not found".to_string())
+        } else {
+            (Status::InternalServerError, e.to_string())
+        }
+    })?;
     Ok(Json(result))
 }
 
 #[rocket::post("/crates", data = "<new_crate>")]
-pub async fn create_crate(mut db: Connection<Db>, new_crate: Json<NewCrate>) -> Result<Json<Crate>, (Status, String)> {
+pub async fn create_crate(mut db: Connection<Db>, new_crate: Json<NewCrate>) -> Result<(Status, Json<Crate>), (Status, String)> {
     let created = CrateRepository::create(&mut db, new_crate.into_inner())
         .await
         .map_err(|e| (Status::InternalServerError, e.to_string()))?;
-    Ok(Json(created))
+    Ok((Status::Created, Json(created)))
 }
 
 #[rocket::put("/crates/<id>", data = "<body>")]

@@ -1,3 +1,4 @@
+use diesel::result::Error as DieselError;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
@@ -21,18 +22,22 @@ pub async fn get_rustaceans(mut db: Connection<Db>) -> Result<Json<Vec<Rustacean
 
 #[rocket::get("/rustaceans/<id>")]
 pub async fn get_rustacean(mut db: Connection<Db>, id: i32) -> Result<Json<Rustacean>, (Status, String)> {
-    let result = RustaceanRepository::find(&mut db, id)
-        .await
-        .map_err(|e| (Status::InternalServerError, e.to_string()))?;
+    let result = RustaceanRepository::find(&mut db, id).await.map_err(|e| {
+        if matches!(e, DieselError::NotFound) {
+            (Status::NotFound, "Rustacean not found".to_string())
+        } else {
+            (Status::InternalServerError, e.to_string())
+        }
+    })?;
     Ok(Json(result))
 }
 
 #[rocket::post("/rustaceans", format="json", data = "<rustacean>")]
-pub async fn create_rustacean(mut db: Connection<Db>, rustacean: Json<NewRustacean>) -> Result<Json<Rustacean>, (Status, String)> {
+pub async fn create_rustacean(mut db: Connection<Db>, rustacean: Json<NewRustacean>) -> Result<(Status, Json<Rustacean>), (Status, String)> {
     let result = RustaceanRepository::create(&mut db, rustacean.into_inner())
         .await
         .map_err(|e| (Status::InternalServerError, e.to_string()))?;
-    Ok(Json(result))
+    Ok((Status::Created, Json(result)))
 }
 
 #[rocket::put("/rustaceans/<id>", format = "json", data = "<body>")]
