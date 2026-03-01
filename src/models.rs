@@ -60,3 +60,57 @@ pub struct UpdateCrate {
     pub version: Option<String>,
     pub description: Option<String>,
 }
+
+
+#[derive(Queryable)]
+#[allow(dead_code)]
+pub struct User {
+    pub id: i32,
+    pub username: String,
+    pub password: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable, Deserialize)]
+#[diesel(table_name=users)]
+pub struct NewUser {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Queryable)]
+#[allow(dead_code)]
+pub struct Role {
+    pub id: i32,
+    pub code: String,
+    pub name: String,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable, Deserialize)]
+#[diesel(table_name=roles)]
+pub struct NewRole {
+    pub code: String,
+    pub name: String,
+}
+
+#[derive(Queryable)]
+#[diesel(belongs_to(User))]
+#[diesel(belongs_to(Role))]
+#[allow(dead_code)]
+pub struct UserRole {
+    pub id: i32,
+    pub user_id: i32,
+    pub role_id: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+
+#[derive(Insertable, Deserialize)]
+#[diesel(table_name=user_roles)]
+pub struct NewUserRole {
+    pub user_id: i32,
+    pub role_id: i32,
+}

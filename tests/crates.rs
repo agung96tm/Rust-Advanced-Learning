@@ -118,6 +118,17 @@ fn test_update_crate() {
 }
 
 #[test]
+fn test_update_crate_not_found() {
+    let client = Client::new();
+    let response = client
+        .put("http://localhost:8000/crates/9999")
+        .json(&json!({}))
+        .send()
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::NOT_FOUND);
+}
+
+#[test]
 fn test_delete_crate() {
     let client = Client::new();
     let rustacean_id = create_rustacean(&client);

@@ -3,9 +3,10 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 
-use crate::Db;
+use super::Db;
 use crate::models::{Crate, NewCrate, UpdateCrate};
 use crate::repositories::CrateRepository;
+use crate::rocket_routes::{not_found_error, server_error};
 
 pub fn routes() -> Vec<rocket::Route> {
     rocket::routes![get_crates, get_crate, create_crate, update_crate, delete_crate]
@@ -24,9 +25,9 @@ pub async fn get_crates(mut db: Connection<Db>) -> Result<Json<Vec<Crate>>, (Sta
 pub async fn get_crate(mut db: Connection<Db>, id: i32) -> Result<Json<Crate>, (Status, String)> {
     let result = CrateRepository::find(&mut db, id).await.map_err(|e| {
         if matches!(e, DieselError::NotFound) {
-            (Status::NotFound, "Crate not found".to_string())
+            not_found_error("Crate not found")
         } else {
-            (Status::InternalServerError, e.to_string())
+            server_error(e)
         }
     })?;
     Ok(Json(result))
@@ -42,9 +43,13 @@ pub async fn create_crate(mut db: Connection<Db>, new_crate: Json<NewCrate>) -> 
 
 #[rocket::put("/crates/<id>", data = "<body>")]
 pub async fn update_crate(mut db: Connection<Db>, id: i32, body: Json<UpdateCrate>) -> Result<Json<Crate>, (Status, String)> {
-    let existing = CrateRepository::find(&mut db, id)
-        .await
-        .map_err(|e| (Status::InternalServerError, e.to_string()))?;
+    let existing = CrateRepository::find(&mut db, id).await.map_err(|e| {
+        if matches!(e, DieselError::NotFound) {
+            not_found_error("Crate not found")
+        } else {
+            server_error(e)
+        }
+    })?;
     let up = body.into_inner();
     let to_update = Crate {
         id,

@@ -1,13 +1,6 @@
-use rocket_db_pools::{Database, Config};
+extern crate rust_advanced_learning;
 
-mod models;
-mod schema;
-mod repositories;
-mod rocket_routes;
-
-#[derive(Database)]
-#[database("db")]
-pub struct Db(rocket_db_pools::diesel::PgPool);
+use rocket_db_pools::Config;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
@@ -28,9 +21,9 @@ async fn main() -> Result<(), rocket::Error> {
         ));
 
     rocket::custom(figment)
-        .attach(Db::init())
-        .mount("/", rocket_routes::rustaceans::routes())
-        .mount("/", rocket_routes::crates::routes())
+        .attach(rust_advanced_learning::rocket_routes::Db::init())
+        .mount("/", rust_advanced_learning::rocket_routes::rustaceans::routes())
+        .mount("/", rrust_advanced_learning::ocket_routes::crates::routes())
         .launch()
         .await?;
 

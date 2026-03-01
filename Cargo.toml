@@ -2,6 +2,7 @@
 name = "rust-advanced-learning"
 version = "0.1.0"
 edition = "2021"
+default-run = "server"
 
 [dependencies]
 diesel = { version = "2.1", features = ["postgres", "chrono"] }
@@ -11,6 +12,7 @@ tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+clap = "4.4"
 
 [dev-dependencies]
 reqwest = { version = "0.12", features = ["json", "blocking"] }

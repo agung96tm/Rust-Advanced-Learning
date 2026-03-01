@@ -3,7 +3,8 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;
 
-use crate::Db;
+use crate::rocket_routes::{not_found_error, server_error};
+use super::Db;
 use crate::models::{NewRustacean, Rustacean, UpdateRustacean};
 use crate::repositories::RustaceanRepository;
 
@@ -24,9 +25,9 @@ pub async fn get_rustaceans(mut db: Connection<Db>) -> Result<Json<Vec<Rustacean
 pub async fn get_rustacean(mut db: Connection<Db>, id: i32) -> Result<Json<Rustacean>, (Status, String)> {
     let result = RustaceanRepository::find(&mut db, id).await.map_err(|e| {
         if matches!(e, DieselError::NotFound) {
-            (Status::NotFound, "Rustacean not found".to_string())
+            not_found_error("Rustacean not found")
         } else {
-            (Status::InternalServerError, e.to_string())
+            server_error(e)
         }
     })?;
     Ok(Json(result))
