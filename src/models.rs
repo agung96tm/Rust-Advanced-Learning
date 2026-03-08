@@ -62,7 +62,7 @@ pub struct UpdateCrate {
 }
 
 
-#[derive(Queryable)]
+#[derive(Queryable, Debug, Identifiable)]
 #[allow(dead_code)]
 pub struct User {
     pub id: i32,
@@ -79,7 +79,7 @@ pub struct NewUser {
     pub password: String,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Debug, Identifiable)]
 #[allow(dead_code)]
 pub struct Role {
     pub id: i32,
@@ -96,12 +96,13 @@ pub struct NewRole {
     pub name: String,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Associations, Identifiable)]
 #[diesel(belongs_to(User))]
 #[diesel(belongs_to(Role))]
+#[diesel(table_name = user_roles)]
+#[diesel(primary_key(user_id, role_id))]
 #[allow(dead_code)]
 pub struct UserRole {
-    pub id: i32,
     pub user_id: i32,
     pub role_id: i32,
     pub created_at: NaiveDateTime,

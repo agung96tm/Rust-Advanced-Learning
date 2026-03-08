@@ -6,6 +6,7 @@ default-run = "server"
 
 [dependencies]
 diesel = { version = "2.1", features = ["postgres", "chrono"] }
+diesel-async = { version = "0.4", features = ["postgres", "bb8"] }
 rocket = { version = "0.5.1", features = ["json"] }
 rocket_db_pools = { version = "0.2", features = ["diesel_postgres"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

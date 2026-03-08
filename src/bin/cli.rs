@@ -1,6 +1,7 @@
 use clap::{Arg, Command};
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let matches = Command::new("rust-advanced-learning")
         // .version(env!("CARGO_PKG_VERSION"))
         .author("Agung Yuliyanto <agung.96tm@gmail.com>")
@@ -36,21 +37,20 @@ fn main() {
     match matches.subcommand() {
         Some(("users", sub_matches)) => {
             match sub_matches.subcommand() {
-                Some(("create", _)) => {
-                    println!("Create a new user");
-                    // let username = sub_matches.get_one::<String>("username").unwrap();
-                    // let password = sub_matches.get_one::<String>("password").unwrap();
-                    // let roles = sub_matches.get_many::<String>("roles").unwrap().collect::<Vec<String>>();
+                Some(("create", sub_matches)) => {
+                    rust_advanced_learning::commands::create_user(
+                        sub_matches.get_one::<String>("username").unwrap().to_owned(),
+                        sub_matches.get_one::<String>("password").unwrap().to_owned(),
+                        sub_matches.get_many::<String>("roles").unwrap().map(|s| s.to_owned()).collect(),
+                    ).await;
                 }
                 Some(("list", _)) => {
-                    println!("List all users");
-                    // let users = rust_advanced_learning::repositories::user::list_users().unwrap();
-                    // println!("{:?}", users);
+                    rust_advanced_learning::commands::list_users().await;
                 }
-                Some(("delete", _)) => {
-                    println!("Delete a user");
-                    // let id = sub_matches.get_one::<i32>("id").unwrap();
-                    // rust_advanced_learning::repositories::user::delete_user(*id).unwrap();
+                Some(("delete", sub_matches)) => {
+                    rust_advanced_learning::commands::delete_user(
+                        sub_matches.get_one::<i32>("id").unwrap().to_owned(),
+                    ).await;
                 }
                 _ => {
                     println!("Invalid subcommand");
